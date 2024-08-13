@@ -1,0 +1,45 @@
+Ports that Need to be Enabled
+
+Overview
+
+This document lists the ports that need to be enabled for various applications and services
+
+Note that some ports are application-specific (e.g., Jenkins, SonarQube), while others are related to NodePort services.
+
+Application-Specific Ports
+
+Jenkins: 8080
+SonarQube: 9001
+NodePort and Other Ports
+10250: Kubelet API
+8081: Custom Service
+22: SSH
+443: HTTPS
+80: HTTP
+9001: SonarQube
+30001: NodePort Service
+30395: Custom Service
+31038: Custom Service
+32001: Custom Service
+31662: Custom Service
+8082: Custom Service
+179: BGP
+2380: etcd Server Client API
+7946: Calico Networking
+32028: Custom Service
+32301: Custom Service
+27017: MongoDB
+2379: etcd Server
+10255: Read-Only Kubelet API
+30007: Custom Service
+30341: Custom Service
+6443: Kubernetes API Server
+8080: Jenkins
+8472: Calico VXLAN
+8285: Calico BGP
+32329: Custom Service
+Note
+For ports related to NodePort services (e.g., ishaqcoaching running on 32000 or 30001), 
+check if the port is listed when running kubectl get svc. If it is not listed, you do not need to enable it in the security group.
+Ensure all necessary ports are open based on your application and service requirements to maintain proper functionality 
+and connectivity.

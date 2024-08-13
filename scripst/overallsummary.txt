@@ -1,0 +1,56 @@
+Overall Summary
+
+Project Setup
+
+Once all tools are set up, follow these steps to configure and validate the project:
+
+Microservices Repositories
+We have created three microservices for this project. The source code for each microservice is available on GitHub:
+
+Main Application Microservice: https://github.com/ishaqsha/ishaque-coaching.git
+Course Microservice: https://github.com/ishaqsha/ishaque-coaching-courses.git
+Candidate Microservice: https://github.com/ishaqsha/ishaque-coaching-candidate.git
+Building the Projects
+Build Each Project: Use three different pipelines to build each microservice project one by one.
+
+Pipeline Completion: Once the pipelines have successfully built the projects, proceed to configure the Cluster IP.
+
+Configuring Cluster IP
+Main Application Configuration:
+
+Open the application.properties file located in src/main/resources/ of the Main Application microservice.
+Add the Cluster IP addresses of the Course and Candidate microservices, along with their internal ports.
+Database Configuration:
+
+Both the Course and Candidate microservices communicate with a MongoDB database service.
+In the source code for the Course and Candidate microservices, 
+update the application.properties file to include the Cluster IP of the MongoDB service.
+
+The configuration ensures:
+
+The Main Application communicates with the Course and Candidate microservices.
+
+The Course and Candidate microservices communicate with the MongoDB service.
+
+Verification
+
+Check Connection:
+
+Access the pod using:
+
+kubectl exec -it <podname> -- /bin/bash
+
+Verify connectivity by executing:
+
+curl -v ip:port
+
+Replace ip and port with the respective Cluster IP and port.
+
+Debugging:
+
+If there are issues with the pod, you can debug using:
+
+kubectl logs <podname>
+kubectl describe pods <podname>
+Ensure that all configurations are properly applied and test the connectivity to confirm that the microservices and 
+database are communicating as expected.

@@ -1,0 +1,159 @@
+Kubernetes Integration with Jenkins
+Overview
+
+Once Kubernetes is installed and configured, you need to integrate it with Jenkins to manage deployments and other operations from Jenkins pipelines.
+
+Steps for Kubernetes Integration
+
+Install Kubernetes Plugins
+
+Go to Manage Jenkins.
+
+Navigate to Manage Plugins.
+
+Install the following plugins:
+
+Kubernetes
+Kubernetes Credentials
+Kubernetes CLI
+
+Create a Kubernetes Service Account
+
+Run the following command on the control plane of your Kubernetes cluster:
+
+kubectl create sa jenkins
+Create a Role Binding
+
+Create a role binding to grant necessary permissions. Use the following YAML configuration:
+
+yaml
+Copy code
+cat <<EOF | kubectl create -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-integration
+  labels:
+    k8s-app: jenkins-image-builder
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: jenkins
+  namespace: default
+EOF
+
+Extract Service Account Token
+
+Run the following commands to extract the token for the service account:
+
+kubectl get secrets $(kubectl get serviceaccounts jenkins -o jsonpath='{.secrets[].name}') -o jsonpath='{.data.token}' | base64 -d
+
+Note: For Kubernetes versions >= v1.24.0, create a secret for the service account:
+
+cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: jenkins
+  annotations:
+    kubernetes.io/service-account.name: jenkins
+EOF
+
+Extract the token using:
+
+kubectl get secrets jenkins -o jsonpath='{.data.token}' | base64 -d
+
+Add Kubernetes Service Account Secret in Jenkins
+
+Log in to Jenkins and go to Manage Jenkins > Credentials > Global.
+
+Click on Add Credentials.
+
+Under Kind, select Secret text.
+
+Paste the Kubernetes token you generated earlier in the Secret field.
+
+Provide an ID and Description (e.g., dockerhubpwd).
+
+Integrate Kubernetes with Jenkins
+
+Navigate to Manage Jenkins > Manage Nodes and Clouds > Configure Clouds.
+
+Click Add a new cloud and select Kubernetes.
+
+Enter the Kubernetes URL obtained from kubectl config view.
+
+Kubernetes Server Certificate Key:
+
+Convert the Kubernetes server certificate key to base64 format with:
+
+echo -n <contents_of_the_certificate-authority-data_entry_of_my_kubeconfig_file> | base64 --decode
+
+Example configuration:
+
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <base64_certificate_key>
+    server: https://your-kubernetes-server-url
+  name: sample-cluster
+contexts:
+- context:
+    cluster: sample-cluster
+    user: your-username
+  name: your-context
+current-context: your-context
+kind: Config
+preferences: {}
+users:
+- name: your-username
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - eks
+      - get-token
+      - --output
+      - json
+      - --cluster-name
+      - sample-cluster
+      command: aws
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      provideClusterInfo: false
+
+Set Kubernetes Namespace to default.
+
+Use Pipeline Syntax for Kubernetes CLI Configuration
+
+Go to Pipeline and click on Pipeline Syntax.
+
+Select withKubeCredentials: Configure Kubernetes cli (kubectl) with multiple credentials.
+
+Select the Credential which we have created in previous steps from drop down menu
+
+Click Generate to get the pipeline script snippet. It will look like this:
+
+withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'sample-cluster', contextName: '', credentialsId: 'your-credential-id', namespace: 'default', serverUrl: 'https://your-kubernetes-server-url']]) {
+    // your commands here
+}
+Connect Kubernetes Cluster in Jenkins Pipeline
+
+Use the following example to connect your Kubernetes cluster in your Jenkins pipeline:
+
+stage('Deploy to Kubernetes') {
+    steps {
+        withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'sample-cluster', contextName: '', credentialsId: 'your-credential-id', namespace: 'default', serverUrl: 'https://your-kubernetes-server-url']]) {
+            sh 'kubectl get nodes'
+            sh 'kubectl apply -f your-deployment-file.yml'
+            sh 'kubectl apply -f your-service-file.yml'
+        }
+    }
+}
+Note: Enter the Kubernetes server certificate key while filling out the details for the cloud configuration in Jenkins, 
+and test the connection.

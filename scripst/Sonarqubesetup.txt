@@ -1,0 +1,23 @@
+###To Setup a Sonarqube ####
+Take the amazon linux machine with t2.small
+# Need to install Java
+# check it is installed or not
+Java –version
+Yum list | grep openjdk
+amazon-linux-extras list
+amazon-linux-extras list install java-openjdk11
+Cd  /opt
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.1.69595.zip
+Unzip it 
+Then go to conf and and the sonarqube.properties file where we have the setting
+Cd bin
+Cd linu-x86-64
+./sonar.sh start
+Need to change the owner ship of sonarqube 
+It wont run as a root user 
+Useradd sonaradmin
+Chown –R sonaradmin: sonaradmin /opt/sonarqube…..version..
+Switch to sonarqube user and start the sonarqube
+To check which port your sonarqube is connected
+netstat –tulpn
+Browse it using ipaddress:9000   default credential admin:admin

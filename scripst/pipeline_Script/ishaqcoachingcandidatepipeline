@@ -1,0 +1,95 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub') 
+        DOCKER_IMAGE = 'ishaqsha/ishaquecoachingcandidate:latest' 
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git url: 'https://github.com/ishaqsha/ishaque-coaching-candidate.git', branch: 'master'
+            }
+
+        }
+        stage('Build') {
+            steps {
+               
+                sh "mvn -Dmaven.test.failure.ignore=true clean package install"
+            }
+
+        }
+                stage('Deploy') {
+            steps {
+                
+                sh "mvn deploy"
+            }
+            post {
+        
+        success {
+                    mail to: 'shaikhishaque386@gmail.com',
+                         subject: "Deployment Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                         body: """<p>Deployment for ${env.JOB_NAME} #${env.BUILD_NUMBER} was successful.</p>
+                                 <p>Check the build details at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                                 <p>Deployment results can be found at: <a href="${env.ARTIFACTORY_BASE_URL}/${env.JOB_NAME}/${env.BUILD_NUMBER}">${env.JOB_NAME} Build ${env.BUILD_NUMBER}</a></p>""",
+                         mimeType: 'text/html'
+                }
+                failure {
+                    mail to: 'shaikhishaque386@gmail.com',
+                         subject: "Deployment Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                         body: """<p>The deployment for ${env.JOB_NAME} #${env.BUILD_NUMBER} failed.</p>
+                                 <p>Check the build details at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                                 <p>Please review the build logs for further details.</p>""",
+                         mimeType: 'text/html'
+                }
+    }
+
+        }
+        stage('code quality analysis')
+        {
+            steps {
+             
+             sh 'mvn sonar:sonar \
+  -Dsonar.projectKey=Ishaquecoachingcandidate \
+  -Dsonar.host.url=http://13.201.126.50:9000 \
+  -Dsonar.login=f986e8ce01e3ef22680e7b77a152a41dae2b3114'   
+            }
+            post {
+                success {
+                    mail to: 'shaikhishaque683@gmail.com',
+                         subject: "SonarQube Analysis Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                         body: """<p>The SonarQube analysis for ${env.JOB_NAME} #${env.BUILD_NUMBER} was successful.</p>
+                                 <p>Check the build details at: ${env.BUILD_URL}</p>
+                                 <p>SonarQube analysis results are available at: http://13.201.126.50:9000</p>""",
+                         mimeType: 'text/html'
+                }
+            }
+        }
+             stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build(env.DOCKER_IMAGE)
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerjenkins', variable: 'dockerhubpwd')]) {
+                     sh 'docker login -u ishaqsha -p ${dockerhubpwd}'   
+                 }
+                 sh 'docker push ishaqsha/ishaquecoachingcandidate:latest'
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            
+            steps {
+                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'secret_k8_token', namespace: 'default', serverUrl: 'https://172.31.11.194:6443']]) {
+                sh 'kubectl get nodes'
+                sh 'kubectl apply -f ishaqcoachingcandidate.yml '
+}
+            }
+        }
+        }
+        
+}

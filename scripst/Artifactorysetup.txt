@@ -1,0 +1,25 @@
+### Jfrog Setup ###
+Pre-requisites:
+
+1. An AWS T2.small EC2 instance (Linux)
+2 .Open port 8081 and 8082 in the security group
+
+Installation Steps:
+Amazon machine :
+
+ sudo yum install java-1.8* -y 
+ 
+Download the artifactory server.
+cd /opt 
+wget https://jfrog.bintray.com/artifactory/jfrog-artifactory-oss-6.9.6.zip
+
+Extract the file
+unzip jfrog-artifactory-oss-6.9.6.zip
+
+cd /opt/jfrog-artifactory-oss-6.9.6/bin
+
+start the artifactory server
+
+./artifactory.sh start
+Access the artifactory server  using username: admin and password: passwrod 
+http://<PUBLIC_IP_Address>:8081 

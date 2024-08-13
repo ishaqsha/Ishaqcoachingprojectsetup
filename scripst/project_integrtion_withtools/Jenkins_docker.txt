@@ -1,0 +1,39 @@
+Docker Integration with Jenkins
+
+Overview
+
+After installing Docker on your build server and Jenkins, follow these steps to integrate Docker into your Jenkins pipeline.
+
+Steps for Docker Integration in Jenkins Pipeline
+Access Pipeline Syntax
+
+In your Jenkins project, go to the Pipeline section and click on Pipeline Syntax.
+Add Docker Credentials
+
+In the Snippet Generator section, select withCredentials: Bind Credential to variable from the dropdown menu.
+Under Binding, choose Secret text.
+Provide a preferred name for the variable (e.g., dockerhubpwd).
+Add and Configure Docker Credentials
+
+Click on Add Credentials.
+
+Choose Secret text as the credential type.
+
+Enter your Docker Hub password in the Secret field.
+
+Assign an ID to this credential (e.g., dockerhubpwd or dockerhub), then click OK or Add.
+
+Generate and Copy Snippet
+
+Back in the Pipeline Syntax page, select the ID you provided from the dropdown list.
+
+Click Generate to create the snippet.
+
+Copy the generated snippet.
+
+Insert Snippet into Pipeline
+
+Paste the copied snippet into your Jenkins pipeline script where Docker credentials are needed.
+
+By following these steps, you will integrate Docker credentials into your Jenkins pipeline for seamless Docker operations.
+

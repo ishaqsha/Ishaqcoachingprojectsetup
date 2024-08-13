@@ -1,0 +1,66 @@
+Jenkins and JFrog Integration Guide
+Overview
+Once you have set up Jenkins and JFrog, you need to integrate them to ensure smooth operation.
+ Follow the steps below to configure the integration.
+
+Steps to Integrate Jenkins with JFrog
+Create a Project/Repository in JFrog
+
+Set up a new local, remote, or virtual repository in JFrog as required.
+Obtain the Repository Configuration
+
+Navigate to the repository you created.
+In the upper right corner, click on the SetMeUp option.
+Retrieve and Configure XML Content
+
+Scroll down to find the XML content starting with <distributionManagement>.
+Copy this XML content into you  POM File
+
+ex: 
+<distributionManagement>
+    <repository>
+        <id>central</id>
+        <name>ip-172-31-42-71.ap-south-1.compute.internal-releases</name>
+        <url>http://3.111.245.70:8081/artifactory/ishaque-coaching-candidate</url>
+    </repository>
+    <snapshotRepository>
+        <id>snapshots</id>
+        <name>ip-172-31-42-71.ap-south-1.compute.internal-snapshots</name>
+        <url>http://3.111.245.70:8081/artifactory/ishaque-coaching-candidate</url>
+    </snapshotRepository>
+</distributionManagement>
+
+Paste the copied XML content into your source code's pom.xml file.
+Configure Jenkins Build Server
+
+On your Jenkins build server, navigate to /var/lib/jenkins/.m2/.
+Create a settings.xml file if it does not already exist.
+Paste the following content into settings.xml, adjusting the username and password as needed:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="https://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <modelVersion>4.0.0</modelVersion>
+    <servers>
+        <server>
+            <id>central</id> <!-- This ID must match the ID used in your pom.xml -->
+            <username>your_username</username>
+            <password>your_password</password>
+        </server>
+        <server>
+            <id>snapshots</id>
+            <username>your_username</username>
+            <password>your_password</password>
+        </server>
+    </servers>
+    <mirrors>
+        <mirror>
+            <id>central</id>
+            <mirrorOf>central</mirrorOf>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </mirror>
+    </mirrors>
+</settings>
+Replace your_username and your_password with your actual credentials.
+By following these steps, you will successfully integrate Jenkins with JFrog and configure your Maven settings.

@@ -1,0 +1,27 @@
+SonarQube Integration with Jenkins
+
+Overview:
+
+After setting up the SonarQube server, follow these steps to integrate it with Jenkins for project analysis.
+
+Steps for SonarQube Integration
+
+Create a SonarQube Project
+
+Navigate to your SonarQube server and create a new project.
+
+Select the repository type (e.g., Maven) and provide a name for the project.
+
+Configure the project as needed. After configuration, SonarQube will provide a token and a command to run in your Jenkins pipeline.
+
+Configure Jenkins Pipeline
+
+In your Jenkins pipeline, use the provided command to execute SonarQube analysis. Here’s an example command:
+
+mvn sonar:sonar \
+  -Dsonar.projectKey=Ishaquecoachingcourse \
+  -Dsonar.host.url=http://13.201.126.50:9000 \
+  -Dsonar.login=6847e7a0be21a6da3c68dad3f713934c6da5b1ea
+Replace the sonar.projectKey, sonar.host.url, and sonar.login values with the details provided by your SonarQube project.
+
+By following these steps, you will successfully integrate SonarQube with Jenkins for effective code quality analysis.

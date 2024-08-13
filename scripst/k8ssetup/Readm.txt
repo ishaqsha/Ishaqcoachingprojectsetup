@@ -1,0 +1,46 @@
+Kubernetes Cluster Setup Instructions
+
+MTU Configuration
+
+When setting up your Kubernetes cluster, it's crucial to configure the MTU (Maximum Transmission Unit) correctly based on your 
+network interface settings.Follow these steps to ensure proper MTU configuration:
+
+Identify Your Network Interface
+
+Run the following command to identify whether your network interface is named eth0 or enX0:
+
+ip link show
+Look for the network interface name in the output. It will be listed as eth0, enX0, or something similar.
+
+Update Your Scripts
+
+In your master and worker node scripts, update the network interface name accordingly. For example:
+
+MASTER_PRIVATE_IP=$(ip addr show enX0 | awk '/inet / {print $2}' | cut -d/ -f1)
+Replace enX0 with your actual network interface name if it is different.
+
+Configure MTU in cni_callico.yml
+
+In the cni_callico.yml file, set the MTU value based on the network interface you identified. 
+This should match the MTU value you configure in the next step.
+
+Set the MTU Value
+
+To set the MTU value to 1440, use the following command:
+
+sudo ip link set dev enX0 mtu 1440
+
+Replace enX0 with the actual network interface name you identified earlier.
+
+Verify the MTU Setting
+
+After setting the MTU value, verify that it has been applied correctly by running:
+
+ip link show
+Check the output to ensure the MTU value for your network interface (enX0 or eth0) is set to 1440.
+The output should look something like this:
+
+2: enX0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1440 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 0a:a3:ed:bd:79:cd brd ff:ff:ff:ff:ff:ff
+By following these steps, you will ensure that your Kubernetes cluster is configured with the correct MTU settings 
+for optimal performance
